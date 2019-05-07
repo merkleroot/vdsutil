@@ -2,14 +2,14 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package ltcutil_test
+package vdsutil_test
 
 import (
 	"testing"
 
-	"github.com/ltcsuite/ltcd/btcec"
-	"github.com/ltcsuite/ltcd/chaincfg"
-	. "github.com/ltcsuite/ltcutil"
+	"github.com/merkleroot/vdsd/btcec"
+	"github.com/merkleroot/vdsd/chaincfg"
+	. "github.com/merkleroot/vdsutil"
 )
 
 func TestEncodeDecodeWIF(t *testing.T) {

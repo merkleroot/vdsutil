@@ -2,7 +2,7 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package ltcutil
+package vdsutil
 
 import (
 	"bytes"
@@ -12,10 +12,10 @@ import (
 	"strings"
 
 	"github.com/btcsuite/golangcrypto/ripemd160"
-	"github.com/ltcsuite/ltcd/btcec"
-	"github.com/ltcsuite/ltcd/chaincfg"
-	"github.com/ltcsuite/ltcutil/base58"
-	"github.com/ltcsuite/ltcutil/bech32"
+	"github.com/merkleroot/vdsd/btcec"
+	"github.com/merkleroot/vdsd/chaincfg"
+	"github.com/merkleroot/vdsutil/base58"
+	"github.com/merkleroot/vdsutil/bech32"
 )
 
 // UnsupportedWitnessVerError describes an error where a segwit address being
