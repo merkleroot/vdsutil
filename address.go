@@ -58,7 +58,7 @@ var (
 // and netID which encodes the litecoin network and address type.  It is used
 // in both pay-to-pubkey-hash (P2PKH) and pay-to-script-hash (P2SH) address
 // encoding.
-func encodeAddress(hash160 []byte, netID byte) string {
+func encodeAddress(hash160 []byte, netID []byte) string {
 	// Format is 1 byte for a network and address class (i.e. P2PKH vs
 	// P2SH), 20 bytes for a RIPEMD160 hash, and 4 bytes of checksum.
 	return base58.CheckEncode(hash160[:ripemd160.Size], netID)
@@ -253,13 +253,13 @@ func decodeSegWitAddress(address string) (byte, []byte, error) {
 // transaction.
 type AddressPubKeyHash struct {
 	hash  [ripemd160.Size]byte
-	netID byte
+	netID []byte
 }
 
 // NewAddressPubKeyHash returns a new AddressPubKeyHash.  pkHash mustbe 20
 // bytes.
 func NewAddressPubKeyHash(pkHash []byte, net *chaincfg.Params) (*AddressPubKeyHash, error) {
-	return newAddressPubKeyHash(pkHash, net.PubKeyHashAddrID)
+	return newAddressPubKeyHash(pkHash, []byte{net.PubKeyHashAddrID1, net.PubKeyHashAddrID2})
 }
 
 // newAddressPubKeyHash is the internal API to create a pubkey hash address
@@ -267,7 +267,7 @@ func NewAddressPubKeyHash(pkHash []byte, net *chaincfg.Params) (*AddressPubKeyHa
 // it up through its parameters.  This is useful when creating a new address
 // structure from a string encoding where the identifer byte is already
 // known.
-func newAddressPubKeyHash(pkHash []byte, netID byte) (*AddressPubKeyHash, error) {
+func newAddressPubKeyHash(pkHash []byte, netID []byte) (*AddressPubKeyHash, error) {
 	// Check for a valid pubkey hash length.
 	if len(pkHash) != ripemd160.Size {
 		return nil, errors.New("pkHash must be 20 bytes")
@@ -293,7 +293,7 @@ func (a *AddressPubKeyHash) ScriptAddress() []byte {
 // IsForNet returns whether or not the pay-to-pubkey-hash address is associated
 // with the passed litecoin network.
 func (a *AddressPubKeyHash) IsForNet(net *chaincfg.Params) bool {
-	return a.netID == net.PubKeyHashAddrID
+	return a.netID[0] == net.PubKeyHashAddrID1 && a.netID[1] == net.PubKeyHashAddrID2
 }
 
 // String returns a human-readable string for the pay-to-pubkey-hash address.
@@ -314,19 +314,19 @@ func (a *AddressPubKeyHash) Hash160() *[ripemd160.Size]byte {
 // transaction.
 type AddressScriptHash struct {
 	hash  [ripemd160.Size]byte
-	netID byte
+	netID []byte
 }
 
 // NewAddressScriptHash returns a new AddressScriptHash.
 func NewAddressScriptHash(serializedScript []byte, net *chaincfg.Params) (*AddressScriptHash, error) {
 	scriptHash := Hash160(serializedScript)
-	return newAddressScriptHashFromHash(scriptHash, net.ScriptHashAddrID)
+	return newAddressScriptHashFromHash(scriptHash, []byte{net.ScriptHashAddrID1, net.ScriptHashAddrID2})
 }
 
 // NewAddressScriptHashFromHash returns a new AddressScriptHash.  scriptHash
 // must be 20 bytes.
 func NewAddressScriptHashFromHash(scriptHash []byte, net *chaincfg.Params) (*AddressScriptHash, error) {
-	return newAddressScriptHashFromHash(scriptHash, net.ScriptHashAddrID)
+	return newAddressScriptHashFromHash(scriptHash, []byte{net.ScriptHashAddrID1, net.ScriptHashAddrID2})
 }
 
 // newAddressScriptHashFromHash is the internal API to create a script hash
@@ -334,7 +334,7 @@ func NewAddressScriptHashFromHash(scriptHash []byte, net *chaincfg.Params) (*Add
 // looking it up through its parameters.  This is useful when creating a new
 // address structure from a string encoding where the identifer byte is already
 // known.
-func newAddressScriptHashFromHash(scriptHash []byte, netID byte) (*AddressScriptHash, error) {
+func newAddressScriptHashFromHash(scriptHash []byte, netID []byte) (*AddressScriptHash, error) {
 	// Check for a valid script hash length.
 	if len(scriptHash) != ripemd160.Size {
 		return nil, errors.New("scriptHash must be 20 bytes")
@@ -360,7 +360,7 @@ func (a *AddressScriptHash) ScriptAddress() []byte {
 // IsForNet returns whether or not the pay-to-script-hash address is associated
 // with the passed litecoin network.
 func (a *AddressScriptHash) IsForNet(net *chaincfg.Params) bool {
-	return a.netID == net.ScriptHashAddrID
+	return a.netID[0] == net.ScriptHashAddrID1 && a.netID[1] == net.ScriptHashAddrID2
 }
 
 // String returns a human-readable string for the pay-to-script-hash address.
@@ -398,7 +398,7 @@ const (
 type AddressPubKey struct {
 	pubKeyFormat PubKeyFormat
 	pubKey       *btcec.PublicKey
-	pubKeyHashID byte
+	pubKeyHashID []byte
 }
 
 // NewAddressPubKey returns a new AddressPubKey which represents a pay-to-pubkey
@@ -425,7 +425,7 @@ func NewAddressPubKey(serializedPubKey []byte, net *chaincfg.Params) (*AddressPu
 	return &AddressPubKey{
 		pubKeyFormat: pkFormat,
 		pubKey:       pubKey,
-		pubKeyHashID: net.PubKeyHashAddrID,
+		pubKeyHashID: []byte{net.PubKeyHashAddrID1, net.PubKeyHashAddrID2},
 	}, nil
 }
 
@@ -468,7 +468,7 @@ func (a *AddressPubKey) ScriptAddress() []byte {
 // IsForNet returns whether or not the pay-to-pubkey address is associated
 // with the passed litecoin network.
 func (a *AddressPubKey) IsForNet(net *chaincfg.Params) bool {
-	return a.pubKeyHashID == net.PubKeyHashAddrID
+	return a.pubKeyHashID[0] == net.PubKeyHashAddrID1 && a.pubKeyHashID[1] == net.PubKeyHashAddrID2
 }
 
 // String returns the hex-encoded human-readable string for the pay-to-pubkey
